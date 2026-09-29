@@ -8,16 +8,23 @@ Q 版二次元桌面宠物：站在桌面上，可以摸头、戳、拎起来晃
 2. 双击 **`启动桌宠.bat`**
    - 第一次会自动下载依赖（Electron 约 100MB，已配置国内镜像），需要几分钟
    - 之后每次双击就能直接启动
-3. 想要独立的 exe：双击 **`打包成exe.bat`**，完成后在 `release` 文件夹里：
-   - `GPT酱桌宠 1.0.0.exe`：免安装单文件版
-   - `GPT酱桌宠 Setup 1.0.0.exe`：安装版
+3. 构建 Windows portable 版：双击 **`打包成exe.bat`**，或运行 `npm run dist`。构建产物输出到 `release` 文件夹；当前 `package.json` 配置的是 portable 目标。
 
 也可以用命令行：`npm install` 然后 `npm start`。
 
-## 动态效果（v6：真正独立的部件图层）
+## CC Switch 中转站余额对接
 
-当前入口改用 `src/parts-live.js`，不再加载旧版 `assets/layers` 尾巴。
-新素材全部从 `assets/sprites` 的 444×420 完整原图重新拆取，原图没有覆盖。
+桌宠可读取 **CC Switch** 当前选中的 Codex 或 Claude 供应商配置，并在状态面板和右键菜单中显示该中转站的剩余余额。没有安装或尚未配置 CC Switch 时，余额行会隐藏或显示查询错误；桌宠的其他功能不受影响。
+
+- **读取位置**：Windows 下读取 `%USERPROFILE%\.cc-switch\cc-switch.db`，并在可用时读取同目录的 `settings.json` 来确定当前供应商。桌宠只读取这些本地配置，不会修改 CC Switch 的数据库或设置。
+- **查询方式**：使用当前供应商配置的用量查询脚本；如果没有启用自定义脚本，则使用内置的默认查询模板。余额请求会发往该供应商配置的查询接口，并按脚本结果解析剩余金额和单位。
+- **选择应用**：打开状态面板底部的 **调试模式**，在“中转站”一栏选择 **Codex** 或 **Claude**。这里也可以设置进度条的满格金额（默认 20 USD = 100%），设置会保存到桌宠自己的 `settings.json`。
+- **刷新和跳转**：启动时会尝试查询；可以点击状态面板的余额图标或“词元”文字刷新，也可以在桌宠右键菜单选择刷新。点击余额进度条可打开当前供应商的网址。
+- **隐私与安全**：余额查询需要使用 CC Switch 当前供应商的地址和凭据向其用量接口发请求；桌宠没有自己的余额代理服务器。若启用了自定义用量查询脚本，请先确认脚本内容和请求地址可信。
+
+## 动态效果（分部件渲染器）
+
+项目提供整图和分部件两套动态渲染器：默认使用 `src/live.js`（整图权重变形），`src/parts-live.js` 是可选的分部件渲染器。下表和本节的分层说明针对分部件版本；切换方法见文末“渲染器说明”。新分层素材从 `assets/sprites` 的 444×420 立绘拆取，不会覆盖原图。
 
 | 主层 | 内容与动作 |
 |---|---|
@@ -37,7 +44,7 @@ Q 版二次元桌面宠物：站在桌面上，可以摸头、戳、拎起来晃
 **查看效果**：用浏览器打开 `layers-preview.html`，可切换表情、单独开关图层、暂停、归零、对照原图及检查深色背景。完整互动仍在 `preview.html`。
 
 生成器：`python art/tools/build_parts.py`。运行桌宠不需要 Python；仅重新生成素材需要稳定版 Python 3.10+ 及 `art/tools/requirements-parts.txt` 中的依赖。
-旧版 `src/live.js`、`assets/layers/` 保留但不再由桌宠入口加载，可用于比较或回退。
+`src/live.js` 是默认整图渲染器；`src/parts-live.js` 是可选分部件渲染器。旧版 `assets/layers/` 资源保留但不再由桌宠入口加载，可用于比较或回退。
 
 ## 性格与表情（v3）
 
@@ -82,6 +89,7 @@ GPT酱是 OpenAI 家的大小姐：嘴硬、傲娇、有点屑，最喜欢嘲讽
 | **双击** | 打开状态面板 |
 | 鼠标**停在她身上** | 显示状态条 |
 | 托盘图标 | 单击：显示或隐藏；右键：菜单 |
+| 右键菜单“设置” | 调整桌宠大小、切换“松手后落到任务栏”和“总在最前”、开关开机自启、将桌宠移回屏幕右下角 |
 
 ## 养成规则
 
@@ -110,11 +118,12 @@ GPT酱是 OpenAI 家的大小姐：嘴硬、傲娇、有点屑，最喜欢嘲讽
 main.js          主进程：透明置顶窗口、拖拽/掉落物理、右键菜单、托盘、存档
 preload.js       安全暴露给页面的接口
 src/game.js      游戏逻辑：数值、物品、商店、生病、金币（改数值、加物品都在这里）
+src/ccswitch.js  读取 CC Switch 当前供应商并查询中转站余额（只读 CC Switch 配置）
 src/pet.*        桌宠窗口：立绘切换、程序动画、点击判定、气泡、特效
 src/parts-live.js 新版独立图层渲染器：网格变形 + 弹簧物理
 assets/parts/    新版头部/后发/身体/尾巴及表情贴图
 layers-preview.html 分层动作检查页
-src/live.js      旧版渲染器（保留，不再加载）
+src/live.js      默认整图动态渲染器；src/parts-live.js 为可选分部件渲染器
 src/panel.*      状态 / 商店 / 背包面板
 src/masks.js     立绘的点击判定遮罩（透明部分可以点穿到桌面）
 assets/sprites/  立绘（透明 PNG，444×420）
@@ -136,6 +145,6 @@ preview.html     网页预览版（不装 Electron 也能在浏览器里试玩�
 - 当前使用 `src/live.js`（仿 Live2D 权重变形，v3.4 逻辑）：头部整体跟随鼠标、瞳孔仅待机图注视、长发/裙摆/呆毛惯性、翅膀扇动、呼吸。
 - 已去掉流苏摆动（原流苏区域覆盖了右侧前发，导致右前发乱动）。`art/tools/build_rig.py` 里 TS 置零。
 - 尾巴不再用独立图层：`art/tools/build_tails.py` 为每张立绘生成尾巴权重图 `assets/rig/tails/<立绘>.png`，从尾根到尾尖 0→1 渐变，边缘羽化，尾根和裙子相连处完全不动，因此交界处不会撕裂。没有权重图的立绘尾巴静止。
-- `src/parts-live.js` / `assets/parts/` 为另一套分部件渲染器，默认不启用（可切换，见下），备份在 `备份/pet_parts_20260927_154601`。
+- `src/parts-live.js` / `assets/parts/` 为可选分部件渲染器，默认不启用（可切换，见下）。
 - 切换渲染器：pet.html 两套都加载，默认用 live.js。想用分部件版：在桌宠窗口控制台执行 localStorage.setItem('petRenderer','parts') 后重启；改回用 'live'。
 - 原生 Electron 冒烟测试：node_modules/electron/dist/electron.exe tests/electron-live-smoke.cjs（隐藏窗口，不碰存档）。
