@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "source": "sprites/idle.png",
+  "size": [
+    444,
+    420
+  ],
+  "pad": 30,
+  "headPivot": [
+    222,
+    204
+  ],
+  "tailPivot": [
+    306,
+    365
+  ],
+  "parts": {
+    "backHair": "back_hair.png",
+    "wings": "wings.png",
+    "tail": "tail.png",
+    "body": "body.png"
+  },
+  "expressions": {
+    "idle": "head_idle.png",
+    "blink": "head_blink.png",
+    "happy": "head_happy.png",
+    "angry": "head_angry.png",
+    "shy": "head_shy.png",
+    "smug": "head_smug.png",
+    "hungry": "head_hungry.png",
+    "starve": "head_starve.png",
+    "thirsty": "head_thirsty.png",
+    "weak": "head_weak.png",
+    "dizzy": "head_dizzy.png"
+  },
+  "closedExpressions": {
+    "angry": "head_angry_blink.png",
+    "shy": "head_shy_blink.png",
+    "smug": "head_smug_blink.png",
+    "hungry": "head_hungry_blink.png",
+    "starve": "head_starve_blink.png",
+    "thirsty": "head_thirsty_blink.png",
+    "idle": "head_blink.png"
+  },
+  "spriteMap": {
+    "idle": "idle",
+    "blink": "blink",
+    "happy": "happy",
+    "angry": "angry",
+    "shy": "shy",
+    "smug": "smug",
+    "hungry": "hungry",
+    "weak": "weak",
+    "dizzy": "dizzy"
+  },
+  "sourceSha256": {
+    "idle": "538bbcc629f30f0e87dbec5cfa48226aa9d6b82334fe46bb6e22a7aad6195bdd",
+    "blink": "e9d67f0af76cb16b8a36ad29e97043b00e935066526ec123e9f208c32a6a82cd",
+    "happy": "2b46775f38e5e6cc5e46de88788c5411fbfc92f67ed44f0fef53fda75b503653",
+    "angry": "fcb1fa8386aff06ed7545d130f87dec1a89919c1af5b0c2e40d9fa5979ed0a86",
+    "shy": "41b838940ce476cf66092c2c2071e63cb0849f5fc2c2a4597db37ab804fb586c",
+    "smug": "f60ff282319c0bd5d46e5cf728a101e4a88c3077bf2fda4193e2fbe9060405ef",
+    "hungry": "f6573da8273d2803e0f8a9928d23c7349c73a58fc2e6f4ea7ba87a6671ddf3f2",
+    "starve": "0b28daea3fdbe4394d752ecde5b9b45ea6c848236fa1caf4602e17e677f74174",
+    "thirsty": "3a3afcc3e0b4626e714e5b8e375b55ade427591a10143830fabba16c0b620768",
+    "weak": "a7e6a78e4a7f140b576a0ed311b5dd12b8ee7fd3668930014b26bd5ad4ad35b7",
+    "dizzy": "b12d327a716d9dd559ede996276cc28486baa3518035f0c3aa7260070f86b753"
+  },
+  "reconstruction": {
+    "premultipliedRgbMAE": 0.00793,
+    "pixelsOver12": 35
+  },
+  "notes": "Hand-traced visible parts; occluded backing inpainted from original pixels. Not a Cubism model."
+}

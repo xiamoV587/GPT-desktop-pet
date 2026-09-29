@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+<title>桌宠</title>
+<link rel="stylesheet" href="pet.css">
+</head>
+<body>
+  <div id="stage">
+    <div id="hud" class="hidden"></div>
+    <div id="bubble" class="hidden"><span id="bubbleText"></span></div>
+    <div id="pet">
+      <div id="rig">
+        <canvas id="live"></canvas>
+        <img id="imgA" class="sprite" alt="" draggable="false">
+        <img id="imgB" class="sprite" alt="" draggable="false">
+        <div id="overlay"></div>
+      </div>
+      <div id="shadow"></div>
+    </div>
+    <div id="fx"></div>
+  </div>
+  <script src="masks.js"></script>
+  <script src="game.js"></script>
+  <script src="../assets/parts/parts.js"></script>
+  <script src="parts-live.js"></script>
+  <script src="../assets/rig/tails/tails.js"></script>
+  <script src="live.js"></script>
+  <script src="pet.js"></script>
+</body>
+</html>

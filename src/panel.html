@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'">
+<title>桌宠面板</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <div id="card">
+    <header id="titlebar">
+      <img id="headAvatar" src="../assets/icon.png" alt="">
+      <div class="tt"><b id="headName">GPT酱</b><span id="headStatus">精神饱满</span></div>
+      <div class="coins" title="金币">💰 <b id="headCoins">0</b></div>
+      <button class="wbtn" id="btnMin" title="最小化">—</button>
+      <button class="wbtn close" id="btnClose" title="关闭">✕</button>
+    </header>
+    <nav id="tabs">
+      <button data-tab="status" class="on">📊 状态</button>
+      <button data-tab="shop">🛒 商店</button>
+      <button data-tab="bag">🎒 背包</button>
+    </nav>
+    <main>
+      <section id="tab-status" class="tab on">
+        <div class="hero">
+          <div class="portrait"><img id="portrait" src="../assets/sprites/idle.png" alt=""></div>
+          <div class="info">
+            <div class="namerow">
+              <span id="petName">GPT酱</span>
+              <button class="mini" id="btnRename" title="改名">✏️</button>
+            </div>
+            <div class="renamerow hidden"><input id="nameInput" maxlength="12"><button class="mini" id="btnNameOk">确定</button></div>
+            <div class="chip" id="statusChip">精神饱满</div>
+            <div class="meta">陪伴第 <b id="days">1</b> 天</div>
+            <div class="btnrow">
+              <button class="btn primary" id="btnSignin">📅 每日签到</button>
+              <button class="btn" id="btnSleep">🌙 睡觉</button>
+            </div>
+          </div>
+        </div>
+        <div id="stats"></div>
+        <div id="tip" class="tip"></div>
+        <div class="foot"><button class="link" id="btnReset">遗弃宠物</button><label class="dbgtoggle"><input type="checkbox" id="dbgOn"> 调试模式</label><span>在线每 3 分钟 +1 金币，摸头、签到也能拿金币</span></div>
+        <div id="dbg" class="dbg hidden">
+          <div class="dbgrow"><span>姿势</span><select id="dbgPose"></select>
+            <label><input type="checkbox" id="dbgLock"> 锁定</label><button class="mini" id="dbgPoseGo">切换</button><button class="mini" id="dbgPoseOff">恢复自动</button></div>
+          <div class="dbgrow"><span>对话</span><select id="dbgCat"></select><select id="dbgLine"></select><button class="mini" id="dbgSayGo">说</button></div>
+          <div class="dbgrow"><span>自定义</span><input id="dbgText" maxlength="80" placeholder="输入任意台词"><button class="mini" id="dbgTextGo">说</button></div>
+          <div class="dbgrow"><span>中转站</span><select id="dbgCcApp"><option value="codex">Codex</option><option value="claude">Claude</option></select>
+            <label>100% =</label><input id="dbgCcMax" type="number" min="0.01" step="any" value="20" style="width:60px;flex:none"><label>USD</label><button class="mini" id="dbgCcRefresh">刷新</button></div>
+          <div class="dbgrow"><span>难度</span><select id="dbgDiff"></select><label>极难：约 1.5 小时照看一次，只买便宜货会越来越穷</label></div>
+        </div>
+      </section>
+
+      <section id="tab-shop" class="tab">
+        <div class="filters" id="shopFilters"></div>
+        <div class="grid" id="shopGrid"></div>
+      </section>
+
+      <section id="tab-bag" class="tab">
+        <div class="filters" id="bagFilters"></div>
+        <div class="list" id="bagList"></div>
+      </section>
+    </main>
+    <div id="toast" class="hidden"></div>
+  </div>
+  <script src="game.js"></script>
+  <script src="panel.js"></script>
+</body>
+</html>

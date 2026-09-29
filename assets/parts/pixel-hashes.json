@@ -1,0 +1,23 @@
+{
+  "back_hair.png": "bb0581977e4c22a87a6ff824507702abe29b6a1d283f0f4492e2341c67d6787d",
+  "body.png": "a8a35a2cbe0ab3a0bc4cad594a6e7c735e0aec4d8fbcd77f913a14406d4872ca",
+  "head_angry.png": "acde311e778f069f8ea237a1cee13e8e0c0447c9d265a05385fe369b52415f86",
+  "head_angry_blink.png": "f9643bf149b9444a5ebd39cf470cdcbd0ebaa1b17e35af65b46384dd38fad8f2",
+  "head_blink.png": "f0e75806d015f8ed249d481a46e73f85c62ebe370cae52867710577fa0cd6569",
+  "head_dizzy.png": "e8fa4f83abf2dd5c7f746dbf1b667d1bc2f0b1e0cb6cd4cfdebe9cf5e5e56d7f",
+  "head_happy.png": "76289deaaa038c7fa2e38046b84aaf9b0a8b31085eddb0669cb107378dc84cbe",
+  "head_hungry.png": "4ff1ba699f80adea67ca0975bb295040b73c25beccb07ac9d69e5f1ad7e25cc5",
+  "head_hungry_blink.png": "e79d9c5f9283b92d32498d09644b061ea1940789a0050d1bc1d0267ce7c2b014",
+  "head_idle.png": "5466d9bceb4af6c9890c3c665317574b4fe5f5c208ffaf14850087e9402287f8",
+  "head_shy.png": "fb43e10ad6dd69a81ebe9a168768dcc8fb1a044ac0b9b8395bb3d3044e3b635a",
+  "head_shy_blink.png": "1337b80d5da77340b9994d1a28d507e6bdb12d97bd65ee4048f268e6484d9e6b",
+  "head_smug.png": "2119ffad47cf8b986fe0c4de50b0b31d401daa58ad892d86baeb3faf8b90b107",
+  "head_smug_blink.png": "bc40569f133be99cf0dfce47bfd56c9ec8300c12054c549c42b017af180c10f3",
+  "head_starve.png": "196ec4b9b585710762c1ab929c50c7fb39fca2f461ef6f897ef021e2ea575ec3",
+  "head_starve_blink.png": "aefcd50e4c54743cfdfe71b2c62072a96da12eacfd839c8249e86cb6c7fe199c",
+  "head_thirsty.png": "1b0246183fa471b2f5701fa2d0cd5ec295123e7ddb536bbe5843dd09e4352279",
+  "head_thirsty_blink.png": "d9152dadd6df2c9a106a7d20e98d7126b96b580c138afa42234f6ef806515c3d",
+  "head_weak.png": "743890565c95c26cb820b3ba4e089d04d6c1535cfbf8ecdf2a80746cd5f24e09",
+  "tail.png": "a95eac330b5021e5eb875ecb843f7e89181695c4f4de7358f952431d48a34c57",
+  "wings.png": "76c4607cbf57849afdc5301418c004bdae5d552106373b30c34c5c1ffab2be47"
+}

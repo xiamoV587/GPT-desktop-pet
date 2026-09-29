@@ -1,0 +1,43 @@
+{
+  "name": "deskpet-gpt",
+  "productName": "GPT酱桌宠",
+  "version": "1.0.0",
+  "description": "Q版二次元桌宠：喂食、口渴、生病、商店、拎起互动",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.deskpet.gpt",
+    "productName": "GPT酱桌宠",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "icon": "assets/icon.ico",
+      "target": [
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "GPT酱桌宠"
+    },
+    "directories": {
+      "output": "release"
+    }
+  },
+  "dependencies": {
+    "sql.js": "^1.12.0"
+  }
+}

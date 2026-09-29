@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>桌宠 · 网页预览</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", sans-serif; }
+  #desk { position: absolute; inset: 0 0 44px 0;
+    background: radial-gradient(1200px 600px at 20% 10%, #6f86d6 0%, transparent 60%),
+                radial-gradient(900px 600px at 90% 80%, #c38bd8 0%, transparent 60%), linear-gradient(135deg, #3d4a8a, #5b3f86); }
+  #taskbar { position: absolute; left: 0; right: 0; bottom: 0; height: 44px; background: rgba(20, 20, 40, .82); backdrop-filter: blur(8px);
+    display: flex; align-items: center; padding: 0 14px; color: #ddd; font-size: 12px; gap: 12px; }
+  #taskbar img { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid #b9a3f0; }
+  #taskbar .sp { flex: 1; }
+  .hint { position: absolute; left: 18px; top: 16px; color: #fff; font-size: 13px; line-height: 1.8; background: rgba(20,20,50,.35);
+    padding: 10px 14px; border-radius: 12px; max-width: 360px; }
+  .hint b { color: #ffe08a; }
+  iframe { position: absolute; border: 0; background: transparent; }
+  #panel { display: none; }
+  #menu { position: absolute; z-index: 20; min-width: 170px; background: #fff; border: 1px solid #cdbff0; border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(60, 40, 120, .35); padding: 5px; font-size: 13px; color: #3f3368; display: none; max-height: 80vh; overflow-y: auto; }
+  #menu div { padding: 5px 10px; border-radius: 6px; cursor: default; white-space: nowrap; }
+  #menu div.act:hover { background: #efe9ff; }
+  #menu div.hd { color: #9b8dc9; font-size: 11.5px; padding-top: 7px; }
+  #menu div.dis { color: #aaa; }
+  #menu hr { border: 0; border-top: 1px solid #eee8fb; margin: 4px 0; }
+</style>
+</head>
+<body>
+  <div id="desk">
+    <div class="hint">
+      🖥️ 这是<b>网页预览版</b>，模拟桌面环境。<br>
+      · <b>单击头部 / 在头上来回移动鼠标</b>：摸头<br>
+      · <b>单击身体</b>：戳一下；<b>连续狂点</b>会生气<br>
+      · <b>按住拖动</b>：拎起来晃，松手会掉到任务栏上<br>
+      · <b>右键</b>：喂食、喂水、吃药、商店…；<b>双击</b>：打开状态面板<br>
+      · 鼠标停在她身上一会儿会显示状态条
+    </div>
+  </div>
+  <div id="taskbar"><img id="tb" src="assets/icon.png" title="点击：打开面板"><span>桌宠预览</span><span class="sp"></span><span id="clock"></span></div>
+  <iframe id="pet" allowtransparency="true"></iframe>
+  <iframe id="panel" src="about:blank" allowtransparency="true"></iframe>
+  <div id="menu"></div>
+
+<script src="src/game.js"></script>
+<script>
+(() => {
+  const Game = window.PetGame;
+  let mem = null;
+  const storage = {
+    load() { try { return JSON.parse(localStorage.getItem('deskpet-save')); } catch { return mem; } },
+    save(s) { try { localStorage.setItem('deskpet-save', JSON.stringify(s)); } catch { mem = JSON.parse(JSON.stringify(s)); } },
+  };
+  const engine = Game.createEngine(storage);
+  setInterval(() => engine.tick(), 30e3);
+
+  const K = parseFloat(new URLSearchParams(location.search).get('scale')) || 0.55, SW = Math.round(444 * K), SH = Math.round(420 * K), W = SW + 120, H = SH + 140;
+  const petF = document.getElementById('pet'), panelF = document.getElementById('panel'), desk = document.getElementById('desk');
+  const menu = document.getElementById('menu');
+  const L = { state: [], play: [], drag: [], vel: [], cursor: [], falling: [], bounce: [], landed: [], scale: [], tab: [] };
+  const emit = (k, v) => L[k].forEach((f) => { try { f(v); } catch (e) { console.error(e); } });
+  const clone = (o) => (o == null ? o : JSON.parse(JSON.stringify(o)));
+  engine.subscribe((s) => emit('state', clone(s)));
+  window.__engine = engine; window.__emit = () => emit('state', clone(engine.state));   // 调试用
+
+  const pos = { x: 0, y: 0 };
+  const ground = () => desk.clientHeight - H;
+  function place() { petF.style.left = pos.x + 'px'; petF.style.top = pos.y + 'px'; }
+  petF.style.width = W + 'px'; petF.style.height = H + 'px';
+  pos.x = Math.max(0, desk.clientWidth - W - 80); pos.y = ground(); place();
+  window.addEventListener('resize', () => { pos.x = Math.min(pos.x, desk.clientWidth - W); pos.y = Math.min(pos.y, ground()); place(); });
+
+  // 拖拽 & 掉落（对应桌面版主进程逻辑）
+  let drag = null, fallRaf = 0;
+  function dragStart() { cancelAnimationFrame(fallRaf); drag = { last: null, vx: 0, vy: 0, t: performance.now() }; }
+  function dragMove(sx, sy) {
+    if (!drag) return;
+    const now = performance.now();
+    if (drag.last) {
+      const dx = sx - drag.last[0], dy = sy - drag.last[1], dt = Math.max(1, now - drag.t);
+      drag.vx = drag.vx * 0.6 + (dx / dt * 16) * 0.4; drag.vy = drag.vy * 0.6 + (dy / dt * 16) * 0.4;
+      pos.x = Math.max(-60, Math.min(desk.clientWidth - W + 60, pos.x + dx));
+      pos.y = Math.max(-140, Math.min(ground(), pos.y + dy)); place();
+      emit('drag', { vx: drag.vx, vy: drag.vy }); emit('vel', { vx: dx, vy: dy });
+    }
+    drag.last = [sx, sy]; drag.t = now;
+  }
+  function dragEnd() {
+    if (!drag) return;
+    const f = { vx: Math.max(-40, Math.min(40, drag.vx)), vy: Math.min(drag.vy, 20), bounced: false }; drag = null;
+    if (ground() - pos.y <= 4) { emit('landed', { impact: 0, air: false }); return; }
+    emit('falling');
+    const step = () => {
+      f.vy += 1.6; f.vx *= 0.97; pos.x += f.vx; pos.y += f.vy; emit('vel', { vx: f.vx, vy: f.vy });
+      if (pos.x < -60 || pos.x > desk.clientWidth - W + 60) { f.vx = -f.vx * 0.5; pos.x = Math.max(-60, Math.min(desk.clientWidth - W + 60, pos.x)); }
+      if (pos.y >= ground()) {
+        pos.y = ground();
+        if (!f.bounced && f.vy > 14) { const impact = f.vy; f.vy = -f.vy * 0.25; f.bounced = true; emit('bounce', { impact }); }
+        else { place(); emit('landed', { impact: f.vy, air: true }); return; }
+      }
+      place(); fallRaf = requestAnimationFrame(step);
+    };
+    fallRaf = requestAnimationFrame(step);
+  }
+
+  // 面板
+  function openPanel(tab = 'status') {
+    panelF.style.display = 'block';
+    panelF.style.width = '440px'; panelF.style.height = '600px';
+    panelF.style.left = Math.max(10, Math.min(pos.x - 450, desk.clientWidth - 450)) + 'px';
+    panelF.style.top = Math.max(10, desk.clientHeight - 610) + 'px';
+    if (panelF.src.endsWith('about:blank') || !panelF.dataset.loaded) { panelF.src = 'src/panel.html?tab=' + tab; panelF.dataset.loaded = 1; }
+    else emit('tab', tab);
+  }
+  document.getElementById('tb').onclick = () => openPanel('status');
+
+  // 右键菜单（桌面版是系统原生菜单）
+  function doAct(name, ...a) { const r = engine.do(name, ...a); if (r && (r.anim || r.say)) emit('play', clone(r)); return r; }
+  function showMenu(cx, cy) {
+    const s = engine.state, inv = s.inventory;
+    const sec = (title, types) => {
+      const ids = Object.keys(inv).filter((id) => types.includes(Game.ITEMS[id].type));
+      return `<div class="hd">${title}</div>` + (ids.length ? ids.map((id) => `<div class="act" data-use="${id}">　${Game.ITEMS[id].emoji} ${Game.ITEMS[id].name} ×${inv[id]}</div>`).join('') : '<div class="dis">　（没有）</div>');
+    };
+    menu.innerHTML = `<div class="dis">${s.name} · 💰${s.coins}</div><div class="dis">状态：${Game.statusText(s)}</div><hr>` +
+      sec('🍙 喂食', ['food']) + sec('🥤 喂水', ['drink']) + sec('💊 吃药', ['medicine']) + sec('🛁 洗澡 / 玩耍', ['clean', 'toy']) +
+      `<hr><div class="act" data-a="sleep">${s.sleeping ? '☀️ 叫醒她' : '🌙 让她睡觉'}</div><hr>` +
+      `<div class="act" data-p="status">📊 状态</div><div class="act" data-p="shop">🛒 商店</div><div class="act" data-p="bag">🎒 背包</div>`;
+    menu.style.display = 'block';
+    const x = pos.x + cx, y = pos.y + cy;
+    menu.style.left = Math.min(x, innerWidth - menu.offsetWidth - 6) + 'px';
+    menu.style.top = Math.max(6, Math.min(y, innerHeight - menu.offsetHeight - 6)) + 'px';
+  }
+  menu.onclick = (e) => {
+    const d = e.target.closest('div.act'); if (!d) return;
+    if (d.dataset.use) doAct('use', d.dataset.use);
+    else if (d.dataset.a) doAct('toggleSleep');
+    else if (d.dataset.p) openPanel(d.dataset.p);
+    menu.style.display = 'none';
+  };
+  document.addEventListener('mousedown', (e) => { if (!menu.contains(e.target)) menu.style.display = 'none'; });
+  document.addEventListener('mousemove', (e) => emit('cursor', { x: e.clientX - pos.x, y: e.clientY - pos.y }));
+
+  // 给 iframe 用的 API（与桌面版 preload 暴露的接口一致）
+  window.createPreviewAPI = (kind, win) => {
+    win.addEventListener('mousedown', () => { menu.style.display = 'none'; });
+    const sub = (k) => (cb) => { L[k].push(cb); return () => { L[k] = L[k].filter((f) => f !== cb); }; };
+    return {
+      isDesktop: false,
+      get: async () => clone({ state: engine.state, items: Game.ITEMS, typeNames: Game.TYPE_NAMES, statNames: Game.STAT_NAMES }),
+      do: async (name, ...a) => {
+        const r = engine.do(name, ...a);
+        if (kind !== 'pet' && r && (r.anim || r.say)) emit('play', clone(r));
+        return clone(r);
+      },
+      idleLine: async () => engine.idleLine(),
+      onState: sub('state'), onPlay: kind === 'pet' ? sub('play') : () => {}, onPanelTab: sub('tab'),
+      setIgnoreMouse: () => {}, dragStart, dragMove, dragEnd,
+      onDrag: sub('drag'), onVel: sub('vel'), onCursor: sub('cursor'), onFalling: sub('falling'), onBounce: sub('bounce'), onLanded: sub('landed'), onScale: sub('scale'),
+      showMenu, openPanel,
+      closePanel: () => { panelF.style.display = 'none'; }, minimizePanel: () => { panelF.style.display = 'none'; },
+    };
+  };
+
+  petF.src = 'src/pet.html?scale=' + K;   // API 准备好之后再加载桌宠
+
+  const clock = document.getElementById('clock');
+  setInterval(() => { clock.textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }); }, 1000);
+})();
+</script>
+</body>
+</html>

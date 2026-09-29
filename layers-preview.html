@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GPT酱 · 分层动作工作台</title>
+<style>
+:root{font-family:"Microsoft YaHei",system-ui,sans-serif;color:#382d51;background:#f6f3fa;font-size:14px}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer}header{max-width:1200px;margin:auto;padding:30px 30px 24px;display:flex;align-items:center;justify-content:space-between}h1{margin:5px 0 0;font-size:26px;letter-spacing:-1px}small,.muted{color:#8b829b}.eyebrow{font-size:10px;letter-spacing:3px;font-weight:700;color:#9984b9}.badge{color:#785aa0;background:#eae2f5;padding:8px 13px;border-radius:24px;font-size:12px}.layout{max-width:1200px;margin:auto;padding:0 30px 32px;display:grid;grid-template-columns:minmax(420px,1fr) 330px;gap:22px}.card{background:#fff;border:1px solid #e7e0ee;border-radius:19px;box-shadow:0 7px 25px #45305d05}.stagebar{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee8f4}.stagebar b{font-size:13px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8cbb9a;margin-right:7px}.scene{height:530px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#f8f6fb;background-image:linear-gradient(45deg,#f0ecf5 25%,transparent 25%),linear-gradient(-45deg,#f0ecf5 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#f0ecf5 75%),linear-gradient(-45deg,transparent 75%,#f0ecf5 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}.scene.dark{background-color:#383340;background-image:none}.canvaswrap{position:relative;width:444px;height:420px;flex-shrink:0}canvas{position:absolute}#original{position:absolute;inset:0;width:444px;height:420px;display:none;pointer-events:none}.scene .hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#9787ad;font-size:11px;letter-spacing:1px}.stagefoot{padding:18px 22px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{border:1px solid #ded4ea;background:white;border-radius:9px;color:#6b587e;padding:8px 13px;font-size:12px}.btn.active,.btn:hover{background:#f0e9fa;border-color:#bca5d8;color:#745499}.btn.primary{background:#80619f;color:white;border-color:#80619f}.side{display:flex;flex-direction:column;gap:16px}.section{padding:21px}.section h2{font-size:14px;margin:0 0 5px}.sub{font-size:11px;color:#998fa5;margin-bottom:17px;line-height:1.7}.expressions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.expressions button{padding:9px 4px}.layer{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0ebf5}.layer:last-child{border:0}.layer input{accent-color:#9471b6;width:15px;height:15px}.layer span{flex:1;font-size:12px}.layer small{font-size:10px}.swatch{width:7px;height:7px;border-radius:50%;background:#b698d0}.control{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin:12px 0}.control input[type=range]{width:145px;accent-color:#9471b6}.note{font-size:11px;line-height:1.8;color:#8c829a}.footer{padding:17px 22px;border-top:1px solid #eee8f4;color:#94889f;font-size:11px;line-height:1.8}a{color:#8766a7;text-decoration:none}.status{font-size:11px;color:#95899f}#error{display:none;background:#fff1f2;color:#9e314a;padding:15px;border-radius:12px;margin-bottom:15px;white-space:pre-wrap}@media(max-width:850px){.layout{grid-template-columns:1fr;padding:0 15px 20px}.side{display:grid;grid-template-columns:1fr 1fr}.scene{height:500px}header{padding:20px}.badge{display:none}}@media(max-width:550px){.side{display:flex}.scene{height:440px}.canvaswrap{transform:scale(.82)}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">GPT CHAN / MOTION STUDIO</div><h1>分层动作工作台</h1></div><span class="badge">原图拆层 · 444 × 420</span></header>
+<main class="layout">
+<div class="card">
+ <div class="stagebar"><b><span class="dot"></span><span id="sceneName">待机 / Idle</span></b><span class="status" id="status">加载素材…</span></div>
+ <div class="scene" id="scene"><div class="canvaswrap"><canvas id="puppet"></canvas><img id="original" src="assets/sprites/idle.png" alt="完整待机原图"></div><div class="hint">移动鼠标，观察头部跟随与后发回摆</div></div>
+ <div class="stagefoot"><button class="btn primary" id="pause">暂停动画</button><button class="btn" id="rest">归零检查</button><button class="btn" id="originalBtn">对照原图</button><button class="btn" id="bg">深色背景</button><button class="btn" id="reset">重置</button></div>
+ <div class="footer">头部、后发、身体、尾巴独立绘制；翅膀作为身体子层。<br>普通表情共享身体，不再整张立绘跳变。复杂动作保留原姿态。<a href="preview.html">打开完整桌宠预览 →</a></div>
+</div>
+<aside class="side">
+ <div class="card section"><div id="error"></div><h2>表情组合</h2><div class="sub">同一身体 · 同一尾巴 · 可替换的头部表情</div><div class="expressions" id="expressions"></div></div>
+ <div class="card section"><h2>图层检查</h2><div class="sub">关闭图层可查看遮挡区和独立部件</div>
+ <label class="layer"><input type="checkbox" data-layer="head" checked><span>脸＋耳朵＋角</span><small>HEAD</small></label>
+ <label class="layer"><input type="checkbox" data-layer="backHair" checked><span>后发 / 下垂发束</span><small>HAIR</small></label>
+ <label class="layer"><input type="checkbox" data-layer="body" checked><span>身体＋翅膀</span><small>BODY</small></label>
+ <label class="layer"><input type="checkbox" data-layer="tail" checked><span>重新提取的尾巴</span><small>TAIL</small></label>
+ <div class="control"><span>动作幅度</span><input type="range" id="amplitude" min="0" max="100" value="100" aria-label="动作幅度"></div>
+ <div class="note">被遮挡区域为程序补全，不是恢复出的原始分层画稿。动作限制在当前小尺寸素材可承受的范围。</div></div>
+ <div class="card section"><h2>原姿态兼容</h2><div class="sub">以下动作使用完整原图，不强行套用站姿骨架</div><div class="expressions" id="poses"></div></div>
+</aside>
+</main>
+<script src="assets/parts/parts.js"></script><script src="src/parts-live.js"></script><script src="src/parts-preview.js"></script>
+</body></html>
